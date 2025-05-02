@@ -34,12 +34,12 @@ jobs:
 
     - name: Install frontend dependencies
       run: |
+        cd ..
         cd frontend
         npm install
 
     - name: Build frontend
       run: |
-        cd frontend
         npm run build
 
     - name: Cache pip
