@@ -1,7 +1,7 @@
 name: Fullstack CI
 
 on: 
-  push: 
+  push:
     branches: [ master ]
   pull_request:
     branches: [ master ]
@@ -19,29 +19,6 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: Install backend dependencies
-      run: |
-        cd src
-        cd backend
-        pip install -r requirements.txt
-
-    
-
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
-
-    - name: Install frontend dependencies
-      run: |
-        cd ..
-        cd frontend
-        npm install
-
-    - name: Build frontend
-      run: |
-        npm run build
-
     - name: Cache pip
       uses: actions/cache@v3
       with:
@@ -50,6 +27,15 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-pip-
 
+    - name: Install backend dependencies
+      working-directory: src/backend
+      run: pip install -r requirements.txt
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
     - name: Cache npm
       uses: actions/cache@v3
       with:
@@ -57,3 +43,11 @@ jobs:
         key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
           ${{ runner.os }}-npm-
+
+    - name: Install frontend dependencies
+      working-directory: src/frontend
+      run: npm install
+
+    - name: Build frontend
+      working-directory: src/frontend
+      run: npm run build
