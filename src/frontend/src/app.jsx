@@ -41,7 +41,7 @@ function App() {
 
   const handleSend = async () => {
     try {
-      const res = await axios.post(`${BACKEND_URL}/mail/send`, {
+      await axios.post(`${BACKEND_URL}/mail/send`, {
         from: username,
         ...formData,
       });
