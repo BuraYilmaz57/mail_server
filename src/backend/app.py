@@ -10,4 +10,4 @@ app.register_blueprint(auth_bp)
 app.register_blueprint(mail_bp)
 
 if __name__ == "__main__":
-    app.run(port=5000)
+    app.run(port=5010)
