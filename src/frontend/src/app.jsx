@@ -5,6 +5,8 @@ const BACKEND_URL = "http://localhost:5010";
 
 export default function App() {
   const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [isRegistering, setIsRegistering] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
   const [emails, setEmails] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
@@ -13,18 +15,32 @@ export default function App() {
   const selectedEmail = emails.find(e => e.id === selectedId);
 
   const handleLogin = async () => {
-    if (!username) return alert("Please enter a username");
+    if (!username || !password) return alert("Please enter a username and a password");
 
     try {
-      await axios.post(`${BACKEND_URL}/auth/login`, { username });
+      await axios.post(`${BACKEND_URL}/auth/login`, { username, password });
       setLoggedIn(true);
       loadInbox();
-      // alert("✅ Logged in as " + username);
+
     } catch (err) {
-      console.error(err);
-      alert("❌ Login failed");
+      const errorMsg = err.response?.data?.message || "Login failed";
+      alert(`❌ ${errorMsg}`);
     }
   };
+
+  const handleRegister = async () => {
+    if (!username || !password) return alert("Please enter both username and password");
+  
+    try {
+      await axios.post(`${BACKEND_URL}/auth/register`, { username, password });
+      alert("✅ Registration successful! You can now log in.");
+      setIsRegistering(false);
+      setPassword("");
+    } catch (err) {
+      const errorMsg = err.response?.data?.message || "Registration failed";
+      alert(`❌ ${errorMsg}`);
+    }
+  };  
 
   const handleLogout = () => {
     setUsername("");
@@ -63,21 +79,55 @@ export default function App() {
   if (!loggedIn) {
     return (
       <div className="h-screen flex items-center justify-center bg-gray-100">
-        <div className="bg-white p-8 rounded shadow-md">
-          <h2 className="text-xl mb-4 font-semibold">Login</h2>
+        <div className="bg-white p-8 rounded shadow-md w-80">
+          <h2 className="text-xl mb-4 font-semibold">
+            {isRegistering ? "Register" : "Login"}
+          </h2>
           <input
             type="text"
             placeholder="Enter username"
             value={username}
             onChange={e => setUsername(e.target.value)}
+            className="border px-3 py-2 rounded w-full mb-3"
+          />
+          <input
+            type="password"
+            placeholder="Enter password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
             className="border px-3 py-2 rounded w-full mb-4"
           />
-          <button
-            onClick={handleLogin}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full"
-          >
-            Login
-          </button>
+          {isRegistering ? (
+            <>
+              <button
+                onClick={handleRegister}
+                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 w-full mb-2"
+              >
+                Register
+              </button>
+              <button
+                onClick={() => setIsRegistering(false)}
+                className="text-blue-500 hover:underline text-sm"
+              >
+                Already have an account? Login
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={handleLogin}
+                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full mb-2"
+              >
+                Login
+              </button>
+              <button
+                onClick={() => setIsRegistering(true)}
+                className="text-green-600 hover:underline text-sm"
+              >
+                New user? Register here
+              </button>
+            </>
+          )}
         </div>
       </div>
     );

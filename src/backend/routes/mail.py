@@ -19,6 +19,7 @@ def send():
         "body": data["body"],
         "timestamp": datetime.utcnow().isoformat()
     }
+    
     messages.append(message)
     return jsonify({"message": "Sent"}), 200
 
