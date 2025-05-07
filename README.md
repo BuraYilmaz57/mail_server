@@ -1,5 +1,5 @@
 ## Description
-This is a React based email project, which the users can currently log in, send/recieve emails, view their inbox.
+This is a React based email project, which the users can currently log in, register as a user (stored in our database where passwords are encrypted), send/recieve emails (stored in our database), view their inbox.
 
 
 ## Technologies
