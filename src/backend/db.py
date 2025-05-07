@@ -10,5 +10,16 @@ def init_db():
             password TEXT UNIQUE NOT NULL
         )
     """)
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS Emails (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            from_user TEXT NOT NULL,
+            to_user TEXT NOT NULL,
+            subject TEXT NOT NULL,
+            body TEXT NOT NULL,
+            timestamp TEXT NOT NULL
+        )
+    """)
     connection.commit()
     connection.close()

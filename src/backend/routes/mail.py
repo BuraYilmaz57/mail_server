@@ -1,5 +1,7 @@
 from flask import Blueprint, request, jsonify
 from datetime import datetime
+import sqlite3
+
 
 mail_bp = Blueprint("mail", __name__, url_prefix="/mail")
 
@@ -12,18 +14,59 @@ def send():
     if not all(k in data for k in required):
         return jsonify({"error": "Missing fields"}), 400
 
-    message = {
-        "from": data["from"],
-        "to": data["to"],
-        "subject": data["subject"],
-        "body": data["body"],
-        "timestamp": datetime.utcnow().isoformat()
-    }
+    timestamp = datetime.utcnow().isoformat()
     
-    messages.append(message)
-    return jsonify({"message": "Sent"}), 200
+    try:
+        with sqlite3.connect("users.db") as connection:
+            cursor = connection.cursor()
+            cursor.execute("""
+                INSERT INTO Emails (from_user, to_user, subject, body, timestamp)
+                VALUES (?, ?, ?, ?, ?)
+            """, (data["from"], data["to"], data["subject"], data["body"], timestamp))
+            connection.commit()
+        return jsonify({"message": "Sent"}), 200
+    except Exception as e:
+        print(f"[ERROR] Failed to save email: {e}")
+        return jsonify({"error": "Failed to send email"}), 500
+
 
 @mail_bp.route("/inbox/<username>", methods=["GET"])
 def inbox(username):
-    user_messages = [m for m in messages if m["to"] == username]
-    return jsonify(user_messages), 200
+    try:
+        with sqlite3.connect("users.db") as connection:
+            cursor = connection.cursor()
+            cursor.execute("""
+                SELECT id, from_user, subject, body, timestamp
+                FROM Emails
+                WHERE to_user = ?
+                ORDER BY timestamp DESC
+            """, (username,))
+            emails = cursor.fetchall()
+            email_list = [
+                {
+                    "id": row[0],
+                    "from": row[1],
+                    "subject": row[2],
+                    "body": row[3],
+                    "timestamp": row[4]
+                }
+                for row in emails
+            ]
+        return jsonify(email_list), 200
+    except Exception as e:
+        print(f"[ERROR] Failed to fetch inbox: {e}")
+        return jsonify({"error": "Failed to load inbox"}), 500
+
+@mail_bp.route("/delete/<int:email_id>", methods=["DELETE"])
+def delete_email(email_id):
+    try:
+        with sqlite3.connect("users.db") as connection:
+            cursor = connection.cursor()
+            cursor.execute("DELETE FROM Emails WHERE id = ?", (email_id,))
+            connection.commit()
+            if cursor.rowcount == 0:
+                return jsonify({"error": "Email not found"}), 404
+        return jsonify({"message": "Email deleted"}), 200
+    except Exception as e:
+        print(f"[ERROR] Failed to delete email: {e}")
+        return jsonify({"error": "Failed to delete email"}), 500
