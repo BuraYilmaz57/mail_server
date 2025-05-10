@@ -56,13 +56,40 @@ def inbox(username):
     except Exception as e:
         print(f"[ERROR] Failed to fetch inbox: {e}")
         return jsonify({"error": "Failed to load inbox"}), 500
-
-@mail_bp.route("/delete/<int:email_id>", methods=["DELETE"])
-def delete_email(email_id):
+    
+@mail_bp.route("/sent/<username>", methods=["GET"])
+def sent(username):
     try:
         with sqlite3.connect("users.db") as connection:
             cursor = connection.cursor()
-            cursor.execute("DELETE FROM Emails WHERE id = ?", (email_id,))
+            cursor.execute("""
+                SELECT id, from_user, subject, body, timestamp
+                FROM Emails
+                WHERE from_user = ?
+                ORDER BY timestamp DESC
+            """, (username,))
+            emails = cursor.fetchall()
+            email_list = [
+                {
+                    "id": row[0],
+                    "from": row[1],
+                    "subject": row[2],
+                    "body": row[3],
+                    "timestamp": row[4]
+                }
+                for row in emails
+            ]
+        return jsonify(email_list), 200
+    except Exception as e:
+        print(f"[ERROR] Failed to fetch inbox: {e}")
+        return jsonify({"error": "Failed to load inbox"}), 500
+
+@mail_bp.route("/delete/<id>", methods=["DELETE"])
+def delete_email(id):
+    try:
+        with sqlite3.connect("users.db") as connection:
+            cursor = connection.cursor()
+            cursor.execute("DELETE FROM Emails WHERE id = ?", (id))
             connection.commit()
             if cursor.rowcount == 0:
                 return jsonify({"error": "Email not found"}), 404

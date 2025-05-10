@@ -21,7 +21,7 @@ export default function App() {
       await axios.post(`${BACKEND_URL}/auth/login`, { username, password });
       setLoggedIn(true);
       loadInbox();
-
+      loadSent();
     } catch (err) {
       const errorMsg = err.response?.data?.message || "Login failed";
       alert(`❌ ${errorMsg}`);
@@ -50,6 +50,17 @@ export default function App() {
     setShowCompose(false);
   };
 
+  const handleDelete = async (emailId) => {
+    try {
+      await axios.delete(`${BACKEND_URL}/mail/delete/${emailId}`);
+      alert("Email deleted");
+      loadInbox();
+    } catch (err) {
+      console.error(err);
+      alert("❌ Failed to delete email");
+    }
+  };
+
   const handleSend = async (email) => {
     try {
       await axios.post(`${BACKEND_URL}/mail/send`, {
@@ -75,6 +86,15 @@ export default function App() {
     }
   };
 
+  const loadSent = async () => {
+    try {
+      const res = await axios.get(`${BACKEND_URL}/mail/sent/${username}`);
+      setEmails(res.data);
+    } catch (err) {
+      console.error(err);
+      alert("❌ Failed to load sent emails");
+    }
+  };
   
   if (!loggedIn) {
     return (
@@ -147,6 +167,20 @@ export default function App() {
           </button>
         </div>
         <div className="p-2 text-sm text-gray-600 border-b">Logged in as: {username}</div>
+        <div className="flex justify-around py-2 border-b">
+          <button
+            onClick={() => loadInbox()}
+            className={`px-3 py-1 rounded "bg-blue-500 text-white"`}
+          >
+            Inbox
+          </button>
+          <button
+            onClick={() => loadSent()}
+            className={`px-3 py-1 rounded "bg-blue-500 text-white"`}
+          >
+            Sent
+          </button>
+        </div>
         <ul className="overflow-auto flex-grow">
           {emails.map(email => (
             <li
@@ -155,7 +189,16 @@ export default function App() {
               className={`p-4 border-b cursor-pointer hover:bg-gray-50 ${email.id === selectedId ? 'bg-gray-200' : ''}`}
             >
               <p className="font-medium">{email.subject}</p>
-              <p className="text-sm text-gray-600 truncate">From: {email.from}</p>
+              <p className="text-sm text-gray-600 truncate">
+                {email.to_user ? `To: ${email.to_user}` : `From: ${email.from}`}
+              </p>
+              <button
+                key={email.id}
+                onClick={() => handleDelete(email.id)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 bg-red-500 text-white m-4 px-3 py-1 rounded hover:bg-red-600"
+              >
+                Delete
+              </button>
             </li>
           ))}
         </ul>
