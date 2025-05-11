@@ -89,7 +89,7 @@ def delete_email(id):
     try:
         with sqlite3.connect("users.db") as connection:
             cursor = connection.cursor()
-            cursor.execute("DELETE FROM Emails WHERE id = ?", (id))
+            cursor.execute("DELETE FROM Emails WHERE id = ?", (id,))
             connection.commit()
             if cursor.rowcount == 0:
                 return jsonify({"error": "Email not found"}), 404

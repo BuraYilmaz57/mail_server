@@ -11,6 +11,7 @@ export default function App() {
   const [emails, setEmails] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
   const [showCompose, setShowCompose] = useState(false);
+  const [currentView, setCurrentView] = useState("inbox");
 
   const selectedEmail = emails.find(e => e.id === selectedId);
 
@@ -158,7 +159,7 @@ export default function App() {
       
       <aside className="w-1/4 bg-white border-r flex flex-col">
         <div className="p-4 flex justify-between items-center border-b">
-          <h2 className="text-xl font-semibold">Inbox</h2>
+          <h2 className="text-xl font-semibold">Hi {username}!</h2>
           <button
             onClick={() => setShowCompose(true)}
             className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
@@ -166,17 +167,22 @@ export default function App() {
             Compose
           </button>
         </div>
-        <div className="p-2 text-sm text-gray-600 border-b">Logged in as: {username}</div>
         <div className="flex justify-around py-2 border-b">
           <button
-            onClick={() => loadInbox()}
-            className={`px-3 py-1 rounded "bg-blue-500 text-white"`}
+            onClick={() => {
+              loadInbox();
+              setCurrentView("inbox");
+            }}
+            className={`px-3 py-1 rounded ${currentView === "inbox" ? "bg-blue-600 text-white": "bg-gray-200 text-gray-800 hover:bg-gray-300"}`}
           >
             Inbox
           </button>
           <button
-            onClick={() => loadSent()}
-            className={`px-3 py-1 rounded "bg-blue-500 text-white"`}
+            onClick={() => {
+              loadSent();
+              setCurrentView("sent");
+            }}
+            className={`px-3 py-1 rounded ${currentView === "sent" ? "bg-blue-600 text-white": "bg-gray-200 text-gray-800 hover:bg-gray-300"}`}
           >
             Sent
           </button>
@@ -192,13 +198,6 @@ export default function App() {
               <p className="text-sm text-gray-600 truncate">
                 {email.to_user ? `To: ${email.to_user}` : `From: ${email.from}`}
               </p>
-              <button
-                key={email.id}
-                onClick={() => handleDelete(email.id)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 bg-red-500 text-white m-4 px-3 py-1 rounded hover:bg-red-600"
-              >
-                Delete
-              </button>
             </li>
           ))}
         </ul>
@@ -212,10 +211,21 @@ export default function App() {
 
       <main className="flex-1 p-6 overflow-auto">
         {selectedEmail ? (
-          <div>
-            <h3 className="text-2xl font-semibold mb-2">{selectedEmail.subject}</h3>
-            <p className="text-sm text-gray-600 mb-4">From: {selectedEmail.from}</p>
-            <div className="bg-white p-4 rounded shadow whitespace-pre-wrap">{selectedEmail.body}</div>
+          <div className="flex flex-col h-full">
+            <div className="flex-grow">
+              <h3 className="text-2xl font-semibold mb-2">{selectedEmail.subject}</h3>
+              <p className="text-sm text-gray-600 mb-4">From: {selectedEmail.from}</p>
+              <button
+                onClick={() => {
+                  handleDelete(selectedEmail.id);
+                  setSelectedId(null);
+                }}
+                    className="bg-red-500 text-white mb-3 px-3 py-1 rounded hover:bg-red-600 self-start"
+              >
+                Delete Email
+              </button>
+              <div className="bg-white p-4 rounded shadow whitespace-pre-wrap">{selectedEmail.body}</div>
+            </div>
           </div>
         ) : (
           <p className="text-gray-500">Select an email to view</p>
