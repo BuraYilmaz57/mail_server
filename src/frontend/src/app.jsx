@@ -12,6 +12,7 @@ export default function App() {
   const [selectedId, setSelectedId] = useState(null);
   const [showCompose, setShowCompose] = useState(false);
   const [currentView, setCurrentView] = useState("inbox");
+  const [darkMode, setDarkMode] = useState(false);
 
   const selectedEmail = emails.find(e => e.id === selectedId);
 
@@ -99,144 +100,179 @@ export default function App() {
   
   if (!loggedIn) {
     return (
-      <div className="h-screen flex items-center justify-center bg-gray-100">
-        <div className="bg-white p-8 rounded shadow-md w-80">
-          <h2 className="text-xl mb-4 font-semibold">
-            {isRegistering ? "Register" : "Login"}
-          </h2>
-          <input
-            type="text"
-            placeholder="Enter username"
-            value={username}
-            onChange={e => setUsername(e.target.value)}
-            className="border px-3 py-2 rounded w-full mb-3"
-          />
-          <input
-            type="password"
-            placeholder="Enter password"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            className="border px-3 py-2 rounded w-full mb-4"
-          />
-          {isRegistering ? (
-            <>
+      <div className={darkMode ? "dark h-screen" : "h-screen"}>
+        <div className="h-full flex items-center justify-center bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+          <div className="bg-white dark:bg-gray-800 p-8 rounded shadow-md w-80">
+            <h2 className="text-xl mb-4 font-semibold">
+              {isRegistering ? "Register" : "Login"}
+            </h2>
+            <input
+              type="text"
+              placeholder="Enter username"
+              value={username}
+              onChange={e => setUsername(e.target.value)}
+              className="border px-3 py-2 rounded w-full mb-3 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            />
+            <input
+              type="password"
+              placeholder="Enter password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              className="border px-3 py-2 rounded w-full mb-4 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            />
+            {isRegistering ? (
+              <>
+                <button
+                  onClick={handleRegister}
+                  className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 w-full mb-2"
+                >
+                  Register
+                </button>
+                <button
+                  onClick={() => setIsRegistering(false)}
+                  className="text-blue-500 dark:text-blue-300 hover:underline text-sm"
+                >
+                  Already have an account? Login
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={handleLogin}
+                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full mb-2"
+                >
+                  Login
+                </button>
+                <button
+                  onClick={() => setIsRegistering(true)}
+                  className="text-green-600 dark:text-green-400 hover:underline text-sm"
+                >
+                  New user? Register here
+                </button>
+              </>
+            )}
+            <div className="mt-4 text-center">
               <button
-                onClick={handleRegister}
-                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 w-full mb-2"
+                onClick={() => setDarkMode(!darkMode)}
+                className="text-sm px-2 py-1 border rounded hover:bg-gray-200 dark:hover:bg-gray-700"
               >
-                Register
+                {darkMode ? "🌙 Dark" : "☀️ Light"}
               </button>
-              <button
-                onClick={() => setIsRegistering(false)}
-                className="text-blue-500 hover:underline text-sm"
-              >
-                Already have an account? Login
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                onClick={handleLogin}
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full mb-2"
-              >
-                Login
-              </button>
-              <button
-                onClick={() => setIsRegistering(true)}
-                className="text-green-600 hover:underline text-sm"
-              >
-                New user? Register here
-              </button>
-            </>
-          )}
+            </div>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="h-screen flex bg-gray-100">
-      
-      <aside className="w-1/4 bg-white border-r flex flex-col">
-        <div className="p-4 flex justify-between items-center border-b">
-          <h2 className="text-xl font-semibold">Hi {username}!</h2>
-          <button
-            onClick={() => setShowCompose(true)}
-            className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-          >
-            Compose
-          </button>
-        </div>
-        <div className="flex justify-around py-2 border-b">
-          <button
-            onClick={() => {
-              loadInbox();
-              setCurrentView("inbox");
-            }}
-            className={`px-3 py-1 rounded ${currentView === "inbox" ? "bg-blue-600 text-white": "bg-gray-200 text-gray-800 hover:bg-gray-300"}`}
-          >
-            Inbox
-          </button>
-          <button
-            onClick={() => {
-              loadSent();
-              setCurrentView("sent");
-            }}
-            className={`px-3 py-1 rounded ${currentView === "sent" ? "bg-blue-600 text-white": "bg-gray-200 text-gray-800 hover:bg-gray-300"}`}
-          >
-            Sent
-          </button>
-        </div>
-        <ul className="overflow-auto flex-grow">
-          {emails.map(email => (
-            <li
-              key={email.id}
-              onClick={() => setSelectedId(email.id)}
-              className={`p-4 border-b cursor-pointer hover:bg-gray-50 ${email.id === selectedId ? 'bg-gray-200' : ''}`}
-            >
-              <p className="font-medium">{email.subject}</p>
-              <p className="text-sm text-gray-600 truncate">
-                {email.to_user ? `To: ${email.to_user}` : `From: ${email.from}`}
-              </p>
-            </li>
-          ))}
-        </ul>
-        <button
-          onClick={handleLogout}
-          className="bg-red-500 text-white m-4 px-3 py-1 rounded hover:bg-red-600"
-        >
-          Logout
-        </button>
-      </aside>
-
-      <main className="flex-1 p-6 overflow-auto">
-        {selectedEmail ? (
-          <div className="flex flex-col h-full">
-            <div className="flex-grow">
-              <h3 className="text-2xl font-semibold mb-2">{selectedEmail.subject}</h3>
-              <p className="text-sm text-gray-600 mb-4">From: {selectedEmail.from}</p>
+    <div className={darkMode ? "dark h-screen" : "h-screen"}>
+      <div className="h-full flex bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+        
+        <aside className="w-1/4 bg-white dark:bg-gray-800 border-r border-gray-300 dark:border-gray-700 flex flex-col">
+          <div className="p-4 flex justify-between items-center border-b border-gray-300 dark:border-gray-700">
+            <h2 className="text-xl font-semibold">Hi {username}!</h2>
+            <div className="flex gap-2 items-center">
               <button
-                onClick={() => {
-                  handleDelete(selectedEmail.id);
-                  setSelectedId(null);
-                }}
-                    className="bg-red-500 text-white mb-3 px-3 py-1 rounded hover:bg-red-600 self-start"
+                onClick={() => setShowCompose(true)}
+                className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
               >
-                Delete Email
+                Compose
               </button>
-              <div className="bg-white p-4 rounded shadow whitespace-pre-wrap">{selectedEmail.body}</div>
             </div>
           </div>
-        ) : (
-          <p className="text-gray-500">Select an email to view</p>
-        )}
-      </main>
+          <div className="flex justify-around py-2 border-b border-gray-300 dark:border-gray-700">
+            <button
+              onClick={() => {
+                loadInbox();
+                setCurrentView("inbox");
+              }}
+              className={`px-3 py-1 rounded ${
+                currentView === "inbox"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600"
+              }`}
+            >
+              Inbox
+            </button>
+            <button
+              onClick={() => {
+                loadSent();
+                setCurrentView("sent");
+              }}
+              className={`px-3 py-1 rounded ${
+                currentView === "sent"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600"
+              }`}
+            >
+              Sent
+            </button>
+          </div>
+          <ul className="overflow-auto flex-grow">
+            {emails.map(email => (
+              <li
+                key={email.id}
+                onClick={() => setSelectedId(email.id)}
+                className={`p-4 border-b border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 ${
+                  email.id === selectedId ? "bg-gray-200 dark:bg-gray-700" : ""
+                }`}
+              >
+                <p className="font-medium">{email.subject}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-300 truncate">
+                  {email.to_user ? `To: ${email.to_user}` : `From: ${email.from}`}
+                </p>
+              </li>
+            ))}
+          </ul>
+          <button
+                onClick={() => setDarkMode(!darkMode)}
+                className="text-sm px-2 py-1 border rounded hover:bg-gray-200 dark:hover:bg-gray-700"
+              >
+                {darkMode ? "🌙 Dark" : "☀️ Light"}
+              </button>
+          <button
+            onClick={handleLogout}
+            className="bg-red-500 text-white m-4 px-3 py-1 rounded hover:bg-red-600"
+          >
+            Logout
+          </button>
+        </aside>
 
-      {showCompose && (
-        <ComposePopup onClose={() => setShowCompose(false)} onSend={handleSend} />
-      )}
+        <main className="flex-1 p-6 overflow-auto">
+          {selectedEmail ? (
+            <div className="flex flex-col h-full">
+              <div className="flex-grow">
+                <h3 className="text-2xl font-semibold mb-2">{selectedEmail.subject}</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+                  From: {selectedEmail.from}
+                </p>
+                <button
+                  onClick={() => {
+                    handleDelete(selectedEmail.id);
+                    setSelectedId(null);
+                  }}
+                  className="bg-red-500 text-white mb-3 px-3 py-1 rounded hover:bg-red-600 self-start"
+                >
+                  Delete Email
+                </button>
+                <div className="bg-white dark:bg-gray-800 p-4 rounded shadow whitespace-pre-wrap">
+                  {selectedEmail.body}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <p className="text-gray-500 dark:text-gray-400">Select an email to view</p>
+          )}
+        </main>
+
+        {showCompose && (
+          <ComposePopup onClose={() => setShowCompose(false)} onSend={handleSend} />
+        )}
+      </div>
     </div>
   );
+
 }
 
 function ComposePopup({ onClose, onSend }) {
