@@ -51,9 +51,9 @@ npm start
 - ~~User database with login/register.~~
 - ~~Password encryption.~~
 - ~~Sent mail view.~~
-- Deleting mails (current development phase).
-- Tag/category system.
-- Dark mode and customizable theme selector.
+- ~~Deleting mails.~~
+- Tag/category system (current development phase).
+- Dark mode and customizable theme selector (current development phase).
 - Profile customization.
 - Mail attachments (image, video, sound, etc.)
 - CC/BCC implementation.
