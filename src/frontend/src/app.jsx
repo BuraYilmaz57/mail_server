@@ -244,7 +244,13 @@ export default function App() {
             <div className="flex flex-col h-full">
               <div className="flex-grow">
                 <h3 className="text-2xl font-semibold mb-2">{selectedEmail.subject}</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+                <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">
+                  {new Intl.DateTimeFormat('en-UK', {
+                    dateStyle: 'long',
+                    timeStyle: 'short',
+                  }).format(new Date(selectedEmail.timestamp))}
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
                   From: {selectedEmail.from}
                 </p>
                 <button
@@ -252,7 +258,7 @@ export default function App() {
                     handleDelete(selectedEmail.id);
                     setSelectedId(null);
                   }}
-                  className="bg-red-500 text-white mb-3 px-3 py-1 rounded hover:bg-red-600 self-start"
+                  className="bg-red-500 text-white mb-2 px-3 py-1 rounded hover:bg-red-600 self-start"
                 >
                   Delete Email
                 </button>
