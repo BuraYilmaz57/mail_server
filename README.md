@@ -7,12 +7,12 @@ A lightweight mail server backend built with **Flask, ReactJS, TailwindCSS, and 
 
 ## Features
 
-- ✅ User Registration & Login
-- ✉️ Send and receive emails (internally)
-- 🔐 Password hashing with Werkzeug
-- 📦 RESTful API structure using Flask Blueprints
-- 🗃️ SQLite for local database storage
-- 🧪 GitHub Actions CI Workflow
+- User Registration & Login
+- Send and receive emails (internally)
+- Password hashing with Werkzeug
+- RESTful API structure using Flask Blueprints
+- SQLite for local database storage
+- GitHub Actions CI Workflow
 
 ---
 
